@@ -20,7 +20,9 @@ class RoboclawWrapper(Node):
 
         # initialize attributes
         self.rc = None
-        self.err = [None] * 5
+        # number of roboclaws (motor controllers) in the system
+        self.no_of_roboclaws = 5
+        self.err = [None] * self.no_of_roboclaws
         self.address = []
         self.current_enc_vals = None
         self.corner_cmd_buffer = None
@@ -507,8 +509,8 @@ class RoboclawWrapper(Node):
         return self.rc.ReadMainBatteryVoltage(self.address[0])[1] / 10.0
 
     def read_temperatures(self):
-        temp = [None] * 5
-        for i in range(5):
+        temp = [None] * self.no_of_roboclaws
+        for i in range(self.no_of_roboclaws):
             # reported by roboclaw in 10ths of a Celsius
             temp[i] = self.rc.ReadTemp(self.address[i])[1] / 10.0
         
@@ -516,7 +518,7 @@ class RoboclawWrapper(Node):
 
     def read_currents(self):
         currents = [None] * 10
-        for i in range(5):
+        for i in range(self.no_of_roboclaws):
             currs = self.rc.ReadCurrents(self.address[i])
             # reported by roboclaw in 10ths of an Ampere
             currents[2*i] = currs[1] / 100.0
@@ -532,7 +534,7 @@ class RoboclawWrapper(Node):
 
     def read_errors(self):
         """Checks error status of each motor controller, returns 0 if no errors reported"""
-        err = ['0'] * 5
+        err = ['0'] * self.no_of_roboclaws
         for i in range(len(self.address)):
             err_int = self.rc.ReadError(self.address[i])[1]
 
