@@ -2,7 +2,7 @@
 
 This project provides a Docker-based emulation environment for a rover control system using ROS 2 Foxy.
 
-We currently have command and control emulation 
+We currently have command and control emulation. 
 
 Possible things we can add:
 

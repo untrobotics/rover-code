@@ -10,14 +10,14 @@ structure, which are covered below
   * `osr_bringup`: configuration and launch files for starting the rover
   * `led_screen`: code to communicate to the Arduino Uno to run the LED screen
 
-Please refer to the docstrings wihin each file to gain understanding of the internals as that is the most
+Please refer to the docstrings within each file to gain an understanding of the internals as that is the most
 up-to-date and complete source of information.
 
 ### osr
 
   * `roboclaw.py`: copy of the roboclaw python library, API to the roboclaw controllers. ROS agnostic
   * `roboclaw_wrapper.py`: ROS node that wraps around and abstracts the roboclaw library. Takes in commands and reports 
-  state of each motor
+  the state of each motor
   * `rover.py`: ROS node that controls the rover, taking in high-level commands and calculating motor commands which are
   sent to `roboclaw_wrapper.py`
 
@@ -30,8 +30,7 @@ and units.
 
 ### osr_bringup 
 
-The osr_bringup package contains the launch file necessary to start all the ROS nodes, 
-as well as the operating parameters for the robot.
+The osr_bringup package contains the launch file necessary to start all the ROS nodes, as well as the robot's operating parameters.
 
 ### led_screen
 
