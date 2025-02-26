@@ -7,26 +7,26 @@ This folder is not a part of the ROS package structure. It contains the code tha
 This section describes the internals of communication between the Raspberry Pi and the Arduino. You don't need
 to understand these if you just want to get your rover running.
 
-### Initilization Packet
-There is an initilization exchange between the Raspberry Pi and Arduino which is used to let each device know the other 
+### Initialization Packet
+There is an initialization exchange between the Raspberry Pi and Arduino which is used to let each device know the other 
 one is ready to send/receive data. Until each device has correctly agreed upon them they will both be in an IDLE state. 
 
-The Raspberry Pi will continually send its initilization command at a 2Hz frequency until it recieves the Arduino's 
-initilization command. The Arduino sits and listens constantly until it hears this command, and then transistions into 
-a RUNNING state, and sends its' initilization command. While in IDLE the RPi listens for this command, and will also 
-transistion to RUNNING upon receiving it. 
+The Raspberry Pi will continually send its initialization command at a 2Hz frequency until it receives the Arduino's 
+initialization command. The Arduino sits and listens constantly until it hears this command, and then transitions into 
+a RUNNING state, and sends its' initialization command. While in IDLE the RPi listens for this command, and will also 
+transition to RUNNING upon receiving it. 
 
 |    `Name`     |      `Value`     |  
 |---------------|------------------|
 | RPi Init      | 0xA              |
 | Arduino Init  | 0xCD             |
 
-Once both of them have agreed upon recieving each other's initilization command they will both be in a RUNNING state 
+Once both of them have agreed upon receiving each other's initialization command they will both be in a RUNNING state 
 sending the normal telemetry packet. If either system hits the timeout constant on listening for the telemetry packet 
-they will be transistioned back to the IDLE state, in which initilization must occur again.
+they will be transitioned back to the IDLE state, in which initialization must occur again.
 
 ### Preamble
-The preamble (or syncword) is used to do bit-level syncronization of the data frames between the two system. 
+The preamble (or syncword) is used to do bit-level synchronization of the data frames between the two systems. 
 It is the first 2 bytes of every single message.
 
 |               |      |      |      |      |  
@@ -41,7 +41,7 @@ re-calculated on both sides of the data stream. It is calculated as the uint16_t
 or the SUM of all bytes in the data packet except for the preamble (and itself of course)
 
 ### Data Frames
-The data frame is a total of 16 bytes sent, and will have the following structure
+The data frame is a total of 16 bytes sent and will have the following structure.
 
 | `PREAMBLE` | `CONN` | `BATTERY` | `ERROR`  |   `TEMP`  | `DRIVE_CURRENT` | `STEERING_CURRENT` | `FACE`  | `CHECKSUM` |  
 |------------|--------|-----------|----------|-----------|-----------------|--------------------|---------|------------|
@@ -55,10 +55,10 @@ Connected Status of the remote controller to the Robot. 1 Byte length
 |---------|---------------------------------------------------------|
 | 0x01    | Remote connected                                        |
 | 0x00    | Remote disconnected                                     |
-| 0xFF    | Overloaded to transistion the arduino back to IDLE state|
+| 0xFF    | Overloaded to transition the arduino back to IDLE state|
 
 ##### BATTERY
-Battery value read in by the motor controllers. 1 Byte length. The value ranges from 0x00 to 0x1F, based on battery %
+Battery value is read by the motor controllers. 1 Byte length. The value ranges from 0x00 to 0x1F, based on battery %
 
 | `Value` | `Battery % ` |
 |---------|--------------|
@@ -71,7 +71,7 @@ Battery value read in by the motor controllers. 1 Byte length. The value ranges 
 
 #### Status
 Error status of each individual motor controller. 1 Byte length. Each motor controller error status is x << i bits, 
-where x indicates an error, is 1 if error and 0 otherwise
+where x indicates an error, is 1 if error, and 0 otherwise
 
 | Motor Controler Address | Binary (if error) |
 |-------------------------|-------------------|
@@ -87,7 +87,7 @@ had errors the error message would be `0000 1010`
 #### TEMP
 Temperature reading coming off of each RoboClaw. 3 Bytes length, where each nibble corresponds to a motor controller, 
 with possible nibble values from 0x0 to 0x4, which ranges from temperatures 28-40 C. The TEMP values are binned into 
-every 20% of the total range, which are also shown below
+every 20% of the total range, which is also shown below
 
 | `NIBBLE NUM`| 0     |  1    |   2   |   3   |   4   |   5   |
 |-------------|-------|-------|-------|-------|-------|-------|
@@ -103,9 +103,9 @@ every 20% of the total range, which are also shown below
 
 
 #### DRIVE_CURRENT
-Driving motors current reading coming off of each RoboClaw. 3 Bytes length, where each nibble corresponds to a motor 
+Driving motors current reading coming off of each RoboClaw. 3 Bytes in length, where each nibble corresponds to a motor 
 controller, with possible nibble values from 0x0 to 0x4, which ranges from current 0-1 amps. 
-The current values are binned into every 20% of the total range, which are also shown below
+The current values are binned into every 20% of the total range, which is also shown below.
 
 | `NIBBLE NUM`| 0     |  1    |   2   |   3   |   4   |   5   |
 |-------------|-------|-------|-------|-------|-------|-------|
@@ -136,7 +136,7 @@ controller, with possible nibble values from 0x0 to 0x4, which ranges from curre
 |0.8 < A         | 0x4         |
 
 #### FACE
-Command for the face. __TO DO: ADD THIS FUNCTIONALITY IN STILL, FOR NOW FACE IS STATIC__
+The command for the face. __TO DO: ADD THIS FUNCTIONALITY IN STILL, FOR NOW, FACE IS STATIC__
 
 
 ### Example 
@@ -153,12 +153,12 @@ The following data is in the format which is passed from the ROS topic `/status`
 | STEER_CURRENT| [9,5,9,6]            |
 | FACE         | 1                    |
 
-First each of these values must be converted into its' respective values, and then inserted into the correct spot into 
+First, each of these values must be converted into its' respective values, and then inserted into the correct spot into 
 the data frame. 
 
-The Battery is full, and will be 0x1F
+The Battery is full and will be 0x1F
 
-Motor controllers 129, 130, 131 have errors, which means that the STATUS binary code generated should be: `0000 1110`
+Motor controllers 129, 130, and 131 have errors, which means that the STATUS binary code generated should be: `0000 1110`
 
 Using the above information in the TEMP description we can see the TEMP should bytes should be 0x01, 0x12, 0x10
 
