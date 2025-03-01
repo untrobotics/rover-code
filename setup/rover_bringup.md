@@ -8,11 +8,11 @@ If this is the first time setting up the rover, you may want to take some precau
 
 * put the rover's body on a box so that the wheels can spin without the rover hitting something by accident and the corner assemblies can rotate freely.
   * alternatively you can take off the wheels
-* Atach the USB dongle for your remote controller (xbox or Spektrum or other)
+* Attach the USB dongle for your remote controller (xbox or Spektrum or other)
 
 ## Configuring the rover parameters
 
-If you have any differences compared to the default build, you can change many parameters spread out over three files. Rather than modifying the original files, any changes should be made to the `_mod.yaml` files you made earlier. This way your changes don't get committed to git.
+If you have any differences compared to the default build, you can change many parameters spread out over three files. Rather than modifying the original files, any changes should be made to the `_mod.yaml` files you made earlier. This way your changes don't conflict with future updates.
 
 The files follow the same structure as the default. Just include the values that you need to change as the default values for other parameters may change over time. Say for example you installed bigger wheels on the rover. The software needs to know this such that it can control what speed to command to each motor. Start by opening the file you just created:
 
@@ -22,7 +22,7 @@ nano osr_params_mod.yaml
 
 An editor (nano) should open, if not, you might have to install nano using 'sudo apt install nano'. You can also use an editor like VScode with an SSH extension so you can use a fully fledged editor while still working from a different computer.
 
-Paste in the following snippet (compare with the contents of [osr_params.yaml](../ROS/osr_bringup/config/osr_params.yaml)).
+If you wanted to update the value for the wheel radius, you would paste in the following snippet (compare with the contents of [osr_params.yaml](../ROS/osr_bringup/config/osr_params.yaml)).
 
 ```yaml
 rover:
@@ -31,7 +31,7 @@ rover:
       wheel_radius: 0.082  # [m]
 ```
 
-The software will load in these changes and apply them. Take a look at the parameters for the [roboclaws](../ROS/osr_bringup/config/roboclaw_params.yaml) as well.
+The software will load in these changes and apply them. Take a look at the parameters for the [roboclaws](../ROS/osr_bringup/config/roboclaw_params.yaml) as well. If you used `nano`, you can save and exit the editor using `ctrl+o` followed by `ctrl+x`.
 
 ## Calibrating the corner servos
 
@@ -190,23 +190,20 @@ should be set to `scale_linear / min_radius`. For the default configuration, the
 
 In this section we'll see how we can have the RPi automatically launch the rover code when it launches. That way you don't have to SSH in to run the rover and it can be controlled completely offline. Any modified parameters in `osr_mod_launch.py` and in the config folder will be found automatically.
 
-**Note: We do not recommend enabling the service until you have verified that everything
+> [!CAUTION]
+> We do not recommend enabling the service until you have verified that everything
 on your robot runs successfully manually. Once you enable the service, as soon as you power
 on the RPi it will try and run everything. This could cause issues if everything has not yet
 been fully tested and verified. Additionally, if you are doing development of your own software
 for the robot we suggest disabling the service and doing manual launch of the scripts during
-testing phases. This will help you more easily debug any issues with your code.**
+testing phases. This will help you more easily debug any issues with your code.
 
-Starting scripts on boot using ROS can be a little more difficult than starting scripts on boot normally from
-the Raspberry Pi because of the default permission settings on the RPi and the fact that that ROS cannot
-be ran as the root user. The way that we will starting our rover code automatically on boot is to create
-a service that starts our roslaunch script, and then automatically run that service on boot of the robot.
+Starting scripts on boot using ROS can be a little more difficult than starting scripts on boot normally from the Raspberry Pi because of the default permission settings on the RPi and the fact that that ROS cannot be ran as the root user. The way that we will starting our rover code automatically on boot is to create a service that starts our roslaunch script, and then automatically run that service on boot of the robot.
 [Further information](https://www.linode.com/docs/quick-answers/linux/start-service-at-boot/) on system service scripts running at boot.
 
-There are two scripts in the ”init_scripts” folder. The first is the bash file that runs the
-roslaunch file, and the other creates a system service to start that bash script. Open up a terminal on the
-raspberry Pi and execute the following commands.
-```
+There are two scripts in the [init_scripts](../init_scripts/) folder. The first is the bash file that runs the roslaunch file, and the other creates a system service to start that bash script. Open up a terminal on the Raspberry Pi and execute the following commands:
+
+```bash
 cd ~/osr_ws/src/osr-rover-code/init_scripts
 # use symbolic links so we capture updates to these files in the service
 sudo ln -s $(pwd)/launch_osr.sh /usr/local/bin/launch_osr.sh
@@ -214,6 +211,8 @@ sudo ln -s $(pwd)/osr_paths.sh /usr/local/bin/osr_paths.sh
 sudo cp osr_startup.service /etc/systemd/system/osr_startup.service
 sudo chmod 644 /etc/systemd/system/osr_startup.service
 ```
+
+Modify the service file with `sudo nano /etc/systemd/system/osr_startup.service` and replace the User and Group with your username (when in doubt, on the Pi run `echo $USER` in a terminal) instead of 'Ubuntu'.
 
 Your osr startup service is now installed on the Pi and ready to be used. The following are some commands
 related to managing this service which you might find useful:
